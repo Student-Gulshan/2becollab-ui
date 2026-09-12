@@ -1,0 +1,38 @@
+{
+  "name": "2becollab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Creator-Brand Marketplace — connecting businesses with creators for paid promotions",
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "dev:api": "pnpm --filter @2becollab/api run dev",
+    "dev:web": "pnpm --filter @2becollab/web run dev",
+    "build": "pnpm -r run build",
+    "build:api": "pnpm --filter @2becollab/api run build",
+    "build:web": "pnpm --filter @2becollab/web run build",
+    "lint": "pnpm -r run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "clean": "pnpm -r run clean",
+    "db:generate": "pnpm --filter @2becollab/api run db:generate",
+    "db:migrate": "pnpm --filter @2becollab/api run db:migrate",
+    "db:studio": "pnpm --filter @2becollab/api run db:studio"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "esbuild",
+      "prisma"
+    ]
+  }
+}

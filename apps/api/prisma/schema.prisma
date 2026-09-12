@@ -1,0 +1,49 @@
+// ============================================
+// 2BeCollab — Prisma Schema
+// ============================================
+// This schema grows with each development chunk.
+// Chunk 1: Base User model only.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Enums
+// ============================================
+
+enum UserRole {
+  CREATOR
+  BUSINESS
+  ADMIN
+  SUPPORT
+}
+
+enum UserStatus {
+  REGISTERED
+  EMAIL_PENDING
+  ACTIVE
+  RESTRICTED
+  SUSPENDED
+  DELETED
+}
+
+// ============================================
+// Models
+// ============================================
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  role      UserRole
+  status    UserStatus @default(REGISTERED)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@map("users")
+}
