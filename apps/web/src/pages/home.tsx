@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Zap, Users, Shield, ArrowRight } from 'lucide-react';
 import { apiClient } from '@/lib/api/client';
 
 export function HomePage() {
+  const navigate = useNavigate();
   const [healthStatus, setHealthStatus] = useState<string>('checking...');
 
   useEffect(() => {
@@ -60,6 +62,7 @@ export function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               id="btn-hero-creator"
+              onClick={() => navigate('/auth/signup?role=CREATOR')}
               className="group flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105"
               style={{
                 background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))',
@@ -71,6 +74,7 @@ export function HomePage() {
             </button>
             <button
               id="btn-hero-business"
+              onClick={() => navigate('/auth/signup?role=BUSINESS')}
               className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
               style={{
                 backgroundColor: 'var(--color-bg-card)',

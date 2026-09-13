@@ -47,3 +47,39 @@ export interface HealthCheckResponse {
   database: 'connected' | 'disconnected';
   redis: 'connected' | 'disconnected';
 }
+
+// ============================================
+// Auth Types
+// ============================================
+
+// Token types for verification tokens
+export enum TokenType {
+  EMAIL_VERIFICATION = 'EMAIL_VERIFICATION',
+  PASSWORD_RESET = 'PASSWORD_RESET',
+}
+
+// User returned from API (never includes password hash)
+export interface UserResponse {
+  id: string;
+  email: string;
+  fullName: string;
+  role: UserRole;
+  status: UserStatus;
+  emailVerifiedAt: string | null;
+  avatarUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Auth response from login/register
+export interface AuthResponse {
+  user: UserResponse;
+  accessToken: string;
+}
+
+// JWT payload embedded in tokens
+export interface JwtPayload {
+  sub: string; // user ID
+  email: string;
+  role: UserRole;
+}

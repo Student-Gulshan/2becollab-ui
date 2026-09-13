@@ -7,6 +7,8 @@
     "dev": "pnpm -r --parallel run dev",
     "dev:api": "pnpm --filter @2becollab/api run dev",
     "dev:web": "pnpm --filter @2becollab/web run dev",
+    "api:dev": "pnpm --filter @2becollab/api run dev",
+    "web:dev": "pnpm --filter @2becollab/web run dev",
     "build": "pnpm -r run build",
     "build:api": "pnpm --filter @2becollab/api run build",
     "build:web": "pnpm --filter @2becollab/web run build",
@@ -31,8 +33,12 @@
       "@nestjs/core",
       "@prisma/client",
       "@prisma/engines",
+      "bcrypt",
       "esbuild",
       "prisma"
+    ],
+    "ignoredBuiltDependencies": [
+      "@parcel/watcher"
     ]
   }
 }

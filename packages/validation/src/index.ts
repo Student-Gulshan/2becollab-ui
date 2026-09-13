@@ -26,3 +26,6 @@ export const paginationSchema = z.object({
 });
 
 export type PaginationInput = z.infer<typeof paginationSchema>;
+
+// Auth schemas
+export * from './auth.schema';

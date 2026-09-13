@@ -3,6 +3,7 @@
 // ============================================
 // This schema grows with each development chunk.
 // Chunk 1: Base User model only.
+// Chunk 2: Auth fields, RefreshToken, VerificationToken.
 
 generator client {
   provider = "prisma-client-js"
@@ -33,17 +34,57 @@ enum UserStatus {
   DELETED
 }
 
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
 // ============================================
 // Models
 // ============================================
 
 model User {
-  id        String     @id @default(uuid())
-  email     String     @unique
-  role      UserRole
-  status    UserStatus @default(REGISTERED)
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
+  id              String     @id @default(uuid())
+  email           String     @unique
+  passwordHash    String?    @map("password_hash")
+  fullName        String     @map("full_name")
+  role            UserRole
+  status          UserStatus @default(REGISTERED)
+  emailVerifiedAt DateTime?  @map("email_verified_at")
+  googleId        String?    @unique @map("google_id")
+  avatarUrl       String?    @map("avatar_url")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  refreshTokens      RefreshToken[]
+  verificationTokens VerificationToken[]
 
   @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model VerificationToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  type      TokenType
+  userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([token, type])
+  @@map("verification_tokens")
 }
