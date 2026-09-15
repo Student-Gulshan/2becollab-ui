@@ -35,3 +35,9 @@ export * from './profile.schema';
 
 // Social Account & Portfolio schemas (Chunk 4)
 export * from './social-account.schema';
+
+// Creator Search schemas (Chunk 5)
+export * from './creator-search.schema';
+
+// Campaign schemas (Chunk 6)
+export * from './campaign.schema';

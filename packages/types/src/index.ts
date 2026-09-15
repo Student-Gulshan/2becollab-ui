@@ -295,3 +295,171 @@ export interface UpdatePortfolioItemPayload {
 export interface ReorderPortfolioPayload {
   itemIds: string[];
 }
+
+// ============================================
+// Creator Discovery & Search (Chunk 5)
+// ============================================
+
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export interface CreatorSearchQuery {
+  query?: string;
+  niches?: string[];
+  platforms?: SocialPlatform[];
+  minFollowers?: number;
+  maxFollowers?: number;
+  minRating?: number;
+  location?: string;
+  sortBy?: 'followers' | 'rating' | 'reviews' | 'newest';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}
+
+export interface CreatorSearchResult {
+  id: string; // creatorProfileId
+  userId: string;
+  fullName: string;
+  avatarUrl: string | null;
+  headline: string | null;
+  bio: string | null;
+  niche: string[];
+  location: string | null;
+  languages: string[];
+  ratingAverage: number;
+  reviewCount: number;
+  isVerified: boolean;
+  totalFollowers: number;
+  avgEngagementRate: number | null;
+  socialAccounts: SocialAccountResponse[];
+  portfolioPreview: Array<{
+    id: string;
+    title: string;
+    mediaUrl: string;
+    thumbnailUrl: string | null;
+    category: string | null;
+    platform: SocialPlatform | null;
+    brandName: string | null;
+  }>;
+}
+
+export interface CreatorSearchResponse {
+  items: CreatorSearchResult[];
+  pagination: PaginationMeta;
+}
+
+// ============================================
+// Campaign Management (Chunk 6)
+// ============================================
+
+export enum CampaignStatus {
+  DRAFT = 'DRAFT',
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
+
+export interface CampaignDeliverable {
+  id?: string;
+  title: string;
+  platform?: SocialPlatform;
+  format?: string;
+  quantity: number;
+  description?: string;
+}
+
+export interface CampaignResponse {
+  id: string;
+  businessProfileId: string;
+  businessProfile?: {
+    id: string;
+    userId: string;
+    companyName: string | null;
+    industry: string | null;
+    logoUrl: string | null;
+    location: string | null;
+    websiteUrl: string | null;
+    user?: {
+      id: string;
+      fullName: string;
+      avatarUrl: string | null;
+    };
+  };
+  title: string;
+  description: string;
+  coverImageUrl: string | null;
+  niches: string[];
+  platforms: SocialPlatform[];
+  budgetMin: number | null;
+  budgetMax: number | null;
+  currency: string;
+  deliverables: CampaignDeliverable[] | null;
+  targetAudience: string | null;
+  requirements: string | null;
+  location: string | null;
+  deadline: string | null;
+  status: CampaignStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCampaignPayload {
+  title: string;
+  description: string;
+  coverImageUrl?: string;
+  niches?: string[];
+  platforms?: SocialPlatform[];
+  budgetMin?: number;
+  budgetMax?: number;
+  currency?: string;
+  deliverables?: CampaignDeliverable[];
+  targetAudience?: string;
+  requirements?: string;
+  location?: string;
+  deadline?: string;
+  status?: CampaignStatus;
+}
+
+export interface UpdateCampaignPayload {
+  title?: string;
+  description?: string;
+  coverImageUrl?: string;
+  niches?: string[];
+  platforms?: SocialPlatform[];
+  budgetMin?: number;
+  budgetMax?: number;
+  currency?: string;
+  deliverables?: CampaignDeliverable[];
+  targetAudience?: string;
+  requirements?: string;
+  location?: string;
+  deadline?: string;
+  status?: CampaignStatus;
+}
+
+export interface CampaignSearchQuery {
+  query?: string;
+  niche?: string;
+  platform?: SocialPlatform;
+  status?: CampaignStatus;
+  minBudget?: number;
+  maxBudget?: number;
+  currency?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: 'newest' | 'budget' | 'deadline';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CampaignSearchResponse {
+  items: CampaignResponse[];
+  pagination: PaginationMeta;
+}

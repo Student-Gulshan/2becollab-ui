@@ -1,6 +1,7 @@
-import { Controller, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { CreatorsService } from './creators.service';
 import { UpdateCreatorProfileDto } from './dto/update-creator-profile.dto';
+import { SearchCreatorsDto } from './dto/search-creators.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -12,6 +13,12 @@ import { UserRole } from '@2becollab/types';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CreatorsController {
   constructor(private readonly creatorsService: CreatorsService) {}
+
+  @Public()
+  @Get()
+  async searchCreators(@Query() query: SearchCreatorsDto) {
+    return this.creatorsService.searchCreators(query);
+  }
 
   @Get('me')
   @Roles(UserRole.CREATOR, UserRole.ADMIN)

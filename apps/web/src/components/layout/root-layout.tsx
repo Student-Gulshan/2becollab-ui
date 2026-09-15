@@ -12,6 +12,8 @@ import {
   X,
   Share2,
   Layers,
+  Briefcase,
+  Plus,
 } from 'lucide-react';
 
 export function RootLayout() {
@@ -87,16 +89,52 @@ export function RootLayout() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link
-              to="/"
-              className="flex items-center gap-2 text-xl font-bold"
-              id="header-logo"
-            >
-              <span className="gradient-text">2Be</span>
-              <span style={{ color: 'var(--color-text-primary)' }}>Collab</span>
-            </Link>
+            <div className="flex items-center gap-8">
+              <Link
+                to="/"
+                className="flex items-center gap-2 text-xl font-bold"
+                id="header-logo"
+              >
+                <span className="gradient-text">2Be</span>
+                <span style={{ color: 'var(--color-text-primary)' }}>Collab</span>
+              </Link>
 
-            <nav className="flex items-center gap-4">
+              {/* Navigation Links */}
+              <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+                <Link
+                  to="/creators"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Find Creators
+                </Link>
+                <Link
+                  to="/campaigns"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Find Campaigns
+                </Link>
+                {isBusiness && (
+                  <Link
+                    to="/campaigns/manage"
+                    className="text-indigo-300 hover:text-white transition-colors"
+                  >
+                    My Campaigns
+                  </Link>
+                )}
+              </nav>
+            </div>
+
+            <div className="flex items-center gap-4">
+              {isBusiness && (
+                <Link
+                  to="/campaigns/new"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-md shadow-indigo-600/20 transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Post Campaign</span>
+                </Link>
+              )}
+
               {isAuthenticated && user ? (
                 <div className="relative" ref={dropdownRef}>
                   <button
@@ -193,6 +231,28 @@ export function RootLayout() {
                           </>
                         )}
 
+                        {isBusiness && (
+                          <>
+                            <Link
+                              to="/campaigns/manage"
+                              onClick={() => setDropdownOpen(false)}
+                              className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-gray-200 hover:text-white hover:bg-white/10 transition-colors"
+                            >
+                              <Briefcase className="w-3.5 h-3.5 text-indigo-400" />
+                              My Campaigns
+                            </Link>
+
+                            <Link
+                              to="/campaigns/new"
+                              onClick={() => setDropdownOpen(false)}
+                              className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-gray-200 hover:text-white hover:bg-white/10 transition-colors"
+                            >
+                              <Plus className="w-3.5 h-3.5 text-emerald-400" />
+                              Post Campaign
+                            </Link>
+                          </>
+                        )}
+
                         {(isCreator || isBusiness) && (
                           <Link
                             to={publicProfileUrl}
@@ -243,7 +303,7 @@ export function RootLayout() {
                   </button>
                 </div>
               )}
-            </nav>
+            </div>
           </div>
         </div>
       </header>

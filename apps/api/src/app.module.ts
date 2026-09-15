@@ -9,6 +9,7 @@ import { CreatorsModule } from './modules/creators/creators.module';
 import { BusinessesModule } from './modules/businesses/businesses.module';
 import { SocialAccountsModule } from './modules/social-accounts/social-accounts.module';
 import { PortfoliosModule } from './modules/portfolios/portfolios.module';
+import { CampaignsModule } from './modules/campaigns/campaigns.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PortfoliosModule } from './modules/portfolios/portfolios.module';
     BusinessesModule,
     SocialAccountsModule,
     PortfoliosModule,
+    CampaignsModule,
   ],
 })
 export class AppModule {}

@@ -12,6 +12,11 @@ import { AuthCallbackPage } from '@/pages/auth/callback';
 import { ProfileEditPage } from '@/pages/profile/edit';
 import { CreatorPublicProfilePage } from '@/pages/profile/creator-public';
 import { BusinessPublicProfilePage } from '@/pages/profile/business-public';
+import { CreatorDiscoveryPage } from '@/pages/creators';
+import { CampaignDiscoveryPage } from '@/pages/campaigns';
+import { CampaignManagePage } from '@/pages/campaigns/manage';
+import { CampaignCreatePage } from '@/pages/campaigns/create';
+import { CampaignDetailPage } from '@/pages/campaigns/detail';
 
 export function AppRouter() {
   return (
@@ -29,10 +34,20 @@ export function AppRouter() {
         <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
-        {/* Profile pages (Chunk 3) */}
+        {/* Profile pages (Chunk 3 & 4) */}
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/creators/:id" element={<CreatorPublicProfilePage />} />
         <Route path="/businesses/:id" element={<BusinessPublicProfilePage />} />
+
+        {/* Creator Discovery & Search (Chunk 5) */}
+        <Route path="/creators" element={<CreatorDiscoveryPage />} />
+
+        {/* Campaign Management (Chunk 6) */}
+        <Route path="/campaigns" element={<CampaignDiscoveryPage />} />
+        <Route path="/campaigns/manage" element={<CampaignManagePage />} />
+        <Route path="/campaigns/new" element={<CampaignCreatePage />} />
+        <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
+        <Route path="/campaigns/:id/edit" element={<CampaignCreatePage />} />
 
         {/* Catch-all */}
         <Route path="*" element={<NotFoundPage />} />

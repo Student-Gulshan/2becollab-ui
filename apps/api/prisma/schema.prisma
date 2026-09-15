@@ -146,6 +146,8 @@ model BusinessProfile {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
+  campaigns   Campaign[]
+
   @@index([userId])
   @@map("business_profiles")
 }
@@ -195,4 +197,43 @@ model PortfolioItem {
   @@index([creatorProfileId])
   @@index([creatorProfileId, sortOrder])
   @@map("portfolio_items")
+}
+
+// ============================================
+// Campaigns (Chunk 6)
+// ============================================
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+model Campaign {
+  id                String          @id @default(uuid())
+  businessProfileId String          @map("business_profile_id")
+  businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  title             String
+  description       String
+  coverImageUrl     String?         @map("cover_image_url")
+  niches            String[]        @default([])
+  platforms         SocialPlatform[] @default([])
+  budgetMin         Float?          @map("budget_min")
+  budgetMax         Float?          @map("budget_max")
+  currency          String          @default("USD")
+  deliverables      Json?
+  targetAudience    String?         @map("target_audience")
+  requirements      String?
+  location          String?
+  deadline          DateTime?
+  status            CampaignStatus  @default(ACTIVE)
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  @@index([businessProfileId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("campaigns")
 }
