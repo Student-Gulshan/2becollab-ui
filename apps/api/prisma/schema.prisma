@@ -4,6 +4,8 @@
 // This schema grows with each development chunk.
 // Chunk 1: Base User model only.
 // Chunk 2: Auth fields, RefreshToken, VerificationToken.
+// Chunk 3: CreatorProfile, BusinessProfile.
+// Chunk 4: SocialAccount, PortfolioItem.
 
 generator client {
   provider = "prisma-client-js"
@@ -39,6 +41,16 @@ enum TokenType {
   PASSWORD_RESET
 }
 
+enum SocialPlatform {
+  INSTAGRAM
+  YOUTUBE
+  TIKTOK
+  TWITTER
+  LINKEDIN
+  FACEBOOK
+  OTHER
+}
+
 // ============================================
 // Models
 // ============================================
@@ -58,6 +70,8 @@ model User {
 
   refreshTokens      RefreshToken[]
   verificationTokens VerificationToken[]
+  creatorProfile     CreatorProfile?
+  businessProfile    BusinessProfile?
 
   @@map("users")
 }
@@ -87,4 +101,98 @@ model VerificationToken {
   @@index([userId])
   @@index([token, type])
   @@map("verification_tokens")
+}
+
+// ============================================
+// Profiles (Chunk 3)
+// ============================================
+
+model CreatorProfile {
+  id            String   @id @default(uuid())
+  userId        String   @unique @map("user_id")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headline      String?
+  bio           String?
+  niche         String[] @default([])
+  location      String?
+  languages     String[] @default([])
+  websiteUrl    String?  @map("website_url")
+  coverImageUrl String?  @map("cover_image_url")
+  isVerified    Boolean  @default(false) @map("is_verified")
+  ratingAverage Float    @default(0.0) @map("rating_average")
+  reviewCount   Int      @default(0) @map("review_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  socialAccounts  SocialAccount[]
+  portfolioItems  PortfolioItem[]
+
+  @@index([userId])
+  @@map("creator_profiles")
+}
+
+model BusinessProfile {
+  id          String    @id @default(uuid())
+  userId      String    @unique @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName String?   @map("company_name")
+  websiteUrl  String?   @map("website_url")
+  industry    String?
+  description String?
+  companySize String?   @map("company_size")
+  location    String?
+  logoUrl     String?   @map("logo_url")
+  verifiedAt  DateTime? @map("verified_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("business_profiles")
+}
+
+// ============================================
+// Social Accounts & Portfolio (Chunk 4)
+// ============================================
+
+model SocialAccount {
+  id               String         @id @default(uuid())
+  creatorProfileId String         @map("creator_profile_id")
+  creatorProfile   CreatorProfile @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+  platform         SocialPlatform
+  handle           String
+  profileUrl       String?        @map("profile_url")
+  followerCount    Int?           @map("follower_count")
+  engagementRate   Float?         @map("engagement_rate")
+  isVerified       Boolean        @default(false) @map("is_verified")
+  lastSyncedAt     DateTime?      @map("last_synced_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  @@unique([creatorProfileId, platform])
+  @@index([creatorProfileId])
+  @@index([platform])
+  @@index([followerCount])
+  @@map("social_accounts")
+}
+
+model PortfolioItem {
+  id               String          @id @default(uuid())
+  creatorProfileId String          @map("creator_profile_id")
+  creatorProfile   CreatorProfile  @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  mediaUrl         String          @map("media_url")
+  thumbnailUrl     String?         @map("thumbnail_url")
+  externalUrl      String?         @map("external_url")
+  category         String?
+  platform         SocialPlatform?
+  brandName        String?         @map("brand_name")
+  metrics          Json?
+  sortOrder        Int             @default(0) @map("sort_order")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  @@index([creatorProfileId])
+  @@index([creatorProfileId, sortOrder])
+  @@map("portfolio_items")
 }

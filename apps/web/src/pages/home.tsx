@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Users, Shield, ArrowRight } from 'lucide-react';
+import { Zap, Users, Shield, ArrowRight, UserCheck } from 'lucide-react';
 import { apiClient } from '@/lib/api/client';
+import { useAuthStore } from '@/stores/auth-store';
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuthStore();
   const [healthStatus, setHealthStatus] = useState<string>('checking...');
 
   useEffect(() => {
@@ -17,6 +19,9 @@ export function HomePage() {
         setHealthStatus('❌ API offline');
       });
   }, []);
+
+  const isCreator = user?.role === 'CREATOR';
+  const isBusiness = user?.role === 'BUSINESS';
 
   return (
     <div className="animate-fade-in">
@@ -59,32 +64,80 @@ export function HomePage() {
             hiring a freelancer. Discover, communicate, agree, deliver, get paid.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              id="btn-hero-creator"
-              onClick={() => navigate('/auth/signup?role=CREATOR')}
-              className="group flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105"
-              style={{
-                background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))',
-                boxShadow: 'var(--shadow-glow)',
-              }}
-            >
-              Join as Creator
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </button>
-            <button
-              id="btn-hero-business"
-              onClick={() => navigate('/auth/signup?role=BUSINESS')}
-              className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-              style={{
-                backgroundColor: 'var(--color-bg-card)',
-                border: '1px solid var(--color-border)',
-                color: 'var(--color-text-primary)',
-              }}
-            >
-              Find Creators
-            </button>
-          </div>
+          {isAuthenticated && user ? (
+            <div className="flex flex-col items-center justify-center gap-4 animate-slide-up">
+              <div
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold"
+                style={{
+                  backgroundColor: isBusiness ? 'rgba(6, 182, 212, 0.12)' : 'rgba(99, 102, 241, 0.12)',
+                  border: `1px solid ${isBusiness ? 'rgba(6, 182, 212, 0.3)' : 'rgba(99, 102, 241, 0.3)'}`,
+                  color: isBusiness ? '#22d3ee' : '#a5b4fc',
+                }}
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                {isBusiness ? '🏢 Brand Member' : isCreator ? '🎨 Creator Member' : 'Member'} • {user.fullName}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button
+                  id="btn-hero-profile-edit"
+                  onClick={() => navigate('/profile/edit')}
+                  className="group flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105"
+                  style={{
+                    background: isBusiness
+                      ? 'linear-gradient(135deg, #06b6d4, #0891b2)'
+                      : 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))',
+                    boxShadow: isBusiness
+                      ? '0 0 25px rgba(6, 182, 212, 0.35)'
+                      : 'var(--shadow-glow)',
+                  }}
+                >
+                  {isBusiness ? 'Manage Brand Profile' : 'Edit Creator Profile'}
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </button>
+
+                <button
+                  id="btn-hero-profile-public"
+                  onClick={() => navigate(isBusiness ? `/businesses/${user.id}` : `/creators/${user.id}`)}
+                  className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                  style={{
+                    backgroundColor: 'var(--color-bg-card)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                >
+                  View Public Profile
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button
+                id="btn-hero-creator"
+                onClick={() => navigate('/auth/signup?role=CREATOR')}
+                className="group flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105"
+                style={{
+                  background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))',
+                  boxShadow: 'var(--shadow-glow)',
+                }}
+              >
+                Join as Creator
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </button>
+              <button
+                id="btn-hero-business"
+                onClick={() => navigate('/auth/signup?role=BUSINESS')}
+                className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                style={{
+                  backgroundColor: 'var(--color-bg-card)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)',
+                }}
+              >
+                Join as Brand
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

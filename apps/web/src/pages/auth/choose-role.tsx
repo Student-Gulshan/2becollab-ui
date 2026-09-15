@@ -1,8 +1,18 @@
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Palette, Building2, ArrowLeft, Sparkles } from 'lucide-react';
+import { useAuthStore } from '@/stores/auth-store';
 
 export function ChooseRolePage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
+
+  // If already logged in, redirect to home/dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const roles = [
     {
@@ -86,7 +96,7 @@ export function ChooseRolePage() {
             <button
               key={role.id}
               id={`btn-role-${role.id}`}
-              onClick={() => navigate(`/auth/login?role=${role.role}`)}
+              onClick={() => navigate(`/auth/signup?role=${role.role}`)}
               className="group text-left p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 animate-slide-up"
               style={{
                 backgroundColor: 'var(--color-bg-card)',
@@ -148,11 +158,24 @@ export function ChooseRolePage() {
                 className="mt-6 flex items-center gap-2 text-sm font-medium transition-all duration-300 group-hover:gap-3"
                 style={{ color: 'var(--color-text-muted)' }}
               >
-                <span className="group-hover:text-white transition-colors">Continue</span>
+                <span className="group-hover:text-white transition-colors">Join as {role.role === 'CREATOR' ? 'Creator' : 'Brand'}</span>
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </div>
             </button>
           ))}
+        </div>
+
+        {/* Existing account prompt */}
+        <div className="text-center mt-10 animate-fade-in">
+          <p className="text-sm text-gray-400">
+            Already have an account?{' '}
+            <Link
+              to="/auth/login"
+              className="text-indigo-400 hover:text-indigo-300 font-medium underline underline-offset-4 transition-colors"
+            >
+              Sign In here
+            </Link>
+          </p>
         </div>
       </div>
     </div>

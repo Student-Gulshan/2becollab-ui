@@ -1,17 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Mail, Lock, User, ArrowLeft, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft, Eye, EyeOff, Check, X, Palette, Building2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRegister } from '@/features/auth/hooks';
 import { openGoogleAuthPopup } from '@/features/auth/api';
 import { useAuthStore } from '@/stores/auth-store';
+import { getErrorMessage } from '@/lib/api/error';
 
 export function SignupPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const role = searchParams.get('role') || 'CREATOR';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paramRole = searchParams.get('role');
+  const [role, setRole] = useState<'CREATOR' | 'BUSINESS'>(
+    paramRole === 'BUSINESS' ? 'BUSINESS' : 'CREATOR',
+  );
   const isCreator = role === 'CREATOR';
+
+  const { isAuthenticated, setUser } = useAuthStore();
+
+  // If already authenticated, redirect to home
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Keep state in sync if URL param changes
+  useEffect(() => {
+    if (paramRole === 'BUSINESS' || paramRole === 'CREATOR') {
+      setRole(paramRole);
+    }
+  }, [paramRole]);
+
+  const handleRoleChange = (newRole: 'CREATOR' | 'BUSINESS') => {
+    setRole(newRole);
+    setSearchParams({ role: newRole });
+  };
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -69,15 +94,9 @@ export function SignupPage() {
       // Navigate to verify email page
       navigate(`/auth/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
-      const message =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        'Registration failed. Please try again.';
-      setFormError(message);
+      setFormError(getErrorMessage(err, 'Registration failed. Please try again.'));
     }
   };
-
-  const { setUser } = useAuthStore();
 
   const handleGoogleSignup = () => {
     openGoogleAuthPopup(
@@ -125,20 +144,34 @@ export function SignupPage() {
             boxShadow: 'var(--shadow-card)',
           }}
         >
-          {/* Role badge */}
-          <div className="flex justify-center mb-6">
-            <span
-              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
-              style={{
-                backgroundColor: isCreator
-                  ? 'rgba(99, 102, 241, 0.1)'
-                  : 'rgba(6, 182, 212, 0.1)',
-                border: `1px solid ${isCreator ? 'rgba(99, 102, 241, 0.2)' : 'rgba(6, 182, 212, 0.2)'}`,
-                color: isCreator ? 'var(--color-primary-light)' : 'var(--color-secondary)',
-              }}
+          {/* Interactive Role Switcher Tabs */}
+          <div className="flex p-1 mb-6 rounded-xl bg-slate-900/80 border border-white/10">
+            <button
+              type="button"
+              id="btn-signup-tab-creator"
+              onClick={() => handleRoleChange('CREATOR')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                isCreator
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
+                  : 'text-gray-400 hover:text-white'
+              }`}
             >
-              {isCreator ? '🎨 Creator' : '🏢 Brand'}
-            </span>
+              <Palette className="w-3.5 h-3.5" />
+              Creator Account
+            </button>
+            <button
+              type="button"
+              id="btn-signup-tab-business"
+              onClick={() => handleRoleChange('BUSINESS')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                !isCreator
+                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/25'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              Brand Account
+            </button>
           </div>
 
           {/* Header */}

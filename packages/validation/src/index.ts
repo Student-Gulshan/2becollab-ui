@@ -29,3 +29,9 @@ export type PaginationInput = z.infer<typeof paginationSchema>;
 
 // Auth schemas
 export * from './auth.schema';
+
+// Profile schemas (Chunk 3)
+export * from './profile.schema';
+
+// Social Account & Portfolio schemas (Chunk 4)
+export * from './social-account.schema';

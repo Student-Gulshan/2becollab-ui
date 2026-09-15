@@ -4,6 +4,7 @@ import { Lock, ArrowLeft, CheckCircle2, Eye, EyeOff, Check, X } from 'lucide-rea
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useResetPassword } from '@/features/auth/hooks';
+import { getErrorMessage } from '@/lib/api/error';
 
 export function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -51,10 +52,7 @@ export function ResetPasswordPage() {
       await resetMutation.mutateAsync({ token, newPassword });
       setSuccess(true);
     } catch (err: any) {
-      const message =
-        err?.response?.data?.message ||
-        'Failed to reset password. The link may be expired.';
-      setFormError(message);
+      setFormError(getErrorMessage(err, 'Failed to reset password. The link may be expired.'));
     }
   };
 

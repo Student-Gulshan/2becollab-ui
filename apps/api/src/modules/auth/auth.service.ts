@@ -56,7 +56,7 @@ export class AuthService {
     // Hash password
     const passwordHash = await bcrypt.hash(dto.password, 12);
 
-    // Create user
+    // Create user with initial profile shell
     const user = await this.prisma.user.create({
       data: {
         email: dto.email.toLowerCase(),
@@ -64,6 +64,12 @@ export class AuthService {
         fullName: dto.fullName,
         role: dto.role as UserRole,
         status: UserStatus.REGISTERED,
+        ...(dto.role === 'CREATOR' ? { creatorProfile: { create: {} } } : {}),
+        ...(dto.role === 'BUSINESS' ? { businessProfile: { create: {} } } : {}),
+      },
+      include: {
+        creatorProfile: true,
+        businessProfile: true,
       },
     });
 
@@ -95,6 +101,10 @@ export class AuthService {
     // Find user
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email.toLowerCase() },
+      include: {
+        creatorProfile: true,
+        businessProfile: true,
+      },
     });
 
     if (!user || !user.passwordHash) {
@@ -375,12 +385,20 @@ export class AuthService {
     // Check if user exists by Google ID
     let user = await this.prisma.user.findUnique({
       where: { googleId: googleUser.googleId },
+      include: {
+        creatorProfile: true,
+        businessProfile: true,
+      },
     });
 
     if (!user) {
       // Check if user exists by email (might have registered with email/password first)
       user = await this.prisma.user.findUnique({
         where: { email: googleUser.email.toLowerCase() },
+        include: {
+          creatorProfile: true,
+          businessProfile: true,
+        },
       });
 
       if (user) {
@@ -393,12 +411,16 @@ export class AuthService {
             emailVerifiedAt: user.emailVerifiedAt || new Date(),
             status: user.status === 'REGISTERED' ? UserStatus.ACTIVE : user.status,
           },
+          include: {
+            creatorProfile: true,
+            businessProfile: true,
+          },
         });
       } else {
         // Validate role
         const role = ['CREATOR', 'BUSINESS'].includes(googleUser.role) ? googleUser.role : 'CREATOR';
 
-        // Create new user
+        // Create new user with profile shell
         user = await this.prisma.user.create({
           data: {
             email: googleUser.email.toLowerCase(),
@@ -408,6 +430,12 @@ export class AuthService {
             role: role as UserRole,
             status: UserStatus.ACTIVE,
             emailVerifiedAt: new Date(), // Google emails are pre-verified
+            ...(role === 'CREATOR' ? { creatorProfile: { create: {} } } : {}),
+            ...(role === 'BUSINESS' ? { businessProfile: { create: {} } } : {}),
+          },
+          include: {
+            creatorProfile: true,
+            businessProfile: true,
           },
         });
 
@@ -434,6 +462,10 @@ export class AuthService {
   async getMe(userId: string): Promise<UserResponse> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
+      include: {
+        creatorProfile: true,
+        businessProfile: true,
+      },
     });
 
     if (!user) {
@@ -501,6 +533,21 @@ export class AuthService {
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
+      creatorProfile: user.creatorProfile
+        ? {
+            ...user.creatorProfile,
+            createdAt: user.creatorProfile.createdAt.toISOString(),
+            updatedAt: user.creatorProfile.updatedAt.toISOString(),
+          }
+        : null,
+      businessProfile: user.businessProfile
+        ? {
+            ...user.businessProfile,
+            verifiedAt: user.businessProfile.verifiedAt?.toISOString() || null,
+            createdAt: user.businessProfile.createdAt.toISOString(),
+            updatedAt: user.businessProfile.updatedAt.toISOString(),
+          }
+        : null,
     };
   }
 }

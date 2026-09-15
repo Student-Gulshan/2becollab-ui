@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useVerifyEmail, useResendVerification } from '@/features/auth/hooks';
+import { getErrorMessage } from '@/lib/api/error';
 
 export function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -115,10 +116,10 @@ export function VerifyEmailPage() {
                 Verification Failed
               </h1>
               <p
-                className="mb-6"
+                className="mb-6 text-sm"
                 style={{ color: 'var(--color-text-secondary)' }}
               >
-                This link may be expired or invalid. Try requesting a new one.
+                {getErrorMessage(verifyMutation.error, 'This link may be expired or invalid. Try requesting a new one.')}
               </p>
               <Button id="btn-back-login" variant="secondary" onClick={() => navigate('/auth/login')}>
                 Back to Login

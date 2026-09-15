@@ -8,6 +8,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@2becollab/types': path.resolve(__dirname, '../../packages/types/src'),
+      '@2becollab/validation': path.resolve(__dirname, '../../packages/validation/src'),
     },
   },
   server: {
