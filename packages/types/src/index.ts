@@ -677,3 +677,247 @@ export interface RespondInvitationPayload {
   status: InvitationStatus.ACCEPTED | InvitationStatus.DECLINED;
 }
 
+// ============================================
+// Offers & Negotiation (Chunk 10)
+// ============================================
+
+export enum OfferStatus {
+  DRAFT = 'DRAFT',
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+  COUNTERED = 'COUNTERED',
+  WITHDRAWN = 'WITHDRAWN',
+  EXPIRED = 'EXPIRED',
+}
+
+export interface OfferDeliverableItem {
+  id?: string;
+  title: string;
+  platform?: SocialPlatform;
+  format?: string;
+  count?: number;
+  requirements?: string;
+}
+
+export interface OfferResponse {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  creatorProfileId: string;
+  campaignId: string | null;
+  title: string;
+  description: string | null;
+  price: number;
+  currency: string;
+  deliverables: OfferDeliverableItem[];
+  revisionLimit: number;
+  deadline: string;
+  usageRights: string | null;
+  exclusivityDays: number | null;
+  parentOfferId: string | null;
+  counterReason: string | null;
+  status: OfferStatus;
+  expiresAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  sender?: {
+    id: string;
+    fullName: string;
+    avatarUrl: string | null;
+    role: UserRole;
+  };
+  recipient?: {
+    id: string;
+    fullName: string;
+    avatarUrl: string | null;
+    role: UserRole;
+  };
+  creatorProfile?: {
+    id: string;
+    userId: string;
+    headline: string | null;
+    ratingAverage: number;
+    reviewCount: number;
+    user?: {
+      fullName: string;
+      avatarUrl: string | null;
+    };
+  };
+  campaign?: {
+    id: string;
+    title: string;
+  } | null;
+  contract?: {
+    id: string;
+    contractNumber: string;
+    status: ContractStatus;
+  } | null;
+  parentOffer?: {
+    id: string;
+    price: number;
+    status: OfferStatus;
+    title: string;
+  } | null;
+}
+
+export interface CreateOfferPayload {
+  recipientId: string;
+  creatorProfileId: string;
+  campaignId?: string;
+  title: string;
+  description?: string;
+  price: number;
+  currency?: string;
+  deliverables: OfferDeliverableItem[];
+  revisionLimit?: number;
+  deadline: string;
+  usageRights?: string;
+  exclusivityDays?: number;
+  expiresAt?: string;
+}
+
+export interface CounterOfferPayload {
+  price?: number;
+  deadline?: string;
+  revisionLimit?: number;
+  deliverables?: OfferDeliverableItem[];
+  counterReason: string;
+  usageRights?: string;
+  exclusivityDays?: number;
+}
+
+export interface RespondOfferPayload {
+  action: 'ACCEPT' | 'REJECT' | 'WITHDRAW';
+}
+
+// ============================================
+// Contracts (Chunk 11)
+// ============================================
+
+export enum ContractStatus {
+  PENDING_PAYMENT = 'PENDING_PAYMENT',
+  ACTIVE = 'ACTIVE',
+  IN_REVIEW = 'IN_REVIEW',
+  COMPLETED = 'COMPLETED',
+  DISPUTED = 'DISPUTED',
+  CANCELLED = 'CANCELLED',
+}
+
+export interface ContractTermsSnapshot {
+  title: string;
+  agreedPrice: number;
+  platformFee: number;
+  creatorEarnings: number;
+  currency: string;
+  deadline: string;
+  revisionLimit: number;
+  usageRights?: string | null;
+  exclusivityDays?: number | null;
+  deliverables: OfferDeliverableItem[];
+  business: {
+    id: string;
+    fullName: string;
+    avatarUrl: string | null;
+    companyName?: string | null;
+  };
+  creator: {
+    id: string;
+    profileId: string;
+    fullName: string;
+    avatarUrl: string | null;
+    headline?: string | null;
+  };
+  campaign?: {
+    id: string;
+    title: string;
+  } | null;
+  acceptedAt: string;
+}
+
+export interface ContractResponse {
+  id: string;
+  contractNumber: string;
+  offerId: string;
+  businessId: string;
+  creatorId: string;
+  creatorProfileId: string;
+  campaignId: string | null;
+  title: string;
+  totalAmount: number;
+  platformFee: number;
+  creatorEarnings: number;
+  currency: string;
+  termsSnapshot: ContractTermsSnapshot;
+  status: ContractStatus;
+  startDate: string | null;
+  dueDate: string;
+  completedAt: string | null;
+  cancelledAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  business?: {
+    id: string;
+    fullName: string;
+    avatarUrl: string | null;
+  };
+  creator?: {
+    id: string;
+    fullName: string;
+    avatarUrl: string | null;
+  };
+  campaign?: {
+    id: string;
+    title: string;
+  } | null;
+  escrowTransactions?: EscrowTransactionResponse[];
+}
+
+// ============================================
+// Payments & Escrow (Chunk 12)
+// ============================================
+
+export enum EscrowStatus {
+  PENDING = 'PENDING',
+  HELD = 'HELD',
+  RELEASED = 'RELEASED',
+  REFUNDED = 'REFUNDED',
+  FAILED = 'FAILED',
+}
+
+export interface EscrowTransactionResponse {
+  id: string;
+  contractId: string;
+  payerId: string;
+  recipientId: string;
+  amount: number;
+  platformFee: number;
+  creatorAmount: number;
+  currency: string;
+  status: EscrowStatus;
+  paymentProvider: string;
+  providerTransactionId: string | null;
+  idempotencyKey: string;
+  paidAt: string | null;
+  releasedAt: string | null;
+  refundedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CheckoutSessionResponse {
+  sessionId: string;
+  contractId: string;
+  amount: number;
+  platformFee: number;
+  totalDue: number;
+  currency: string;
+  clientSecret?: string;
+  paymentUrl?: string;
+}
+
+export interface ConfirmPaymentPayload {
+  sessionId: string;
+  providerPaymentId?: string;
+}
+

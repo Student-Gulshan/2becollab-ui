@@ -75,6 +75,12 @@ model User {
   conversations1     Conversation[]      @relation("Participant1Conversations")
   conversations2     Conversation[]      @relation("Participant2Conversations")
   sentMessages       Message[]
+  sentOffers         Offer[]             @relation("SentOffers")
+  receivedOffers     Offer[]             @relation("ReceivedOffers")
+  businessContracts  Contract[]          @relation("BusinessContracts")
+  creatorContracts   Contract[]          @relation("CreatorContracts")
+  payerEscrows       EscrowTransaction[] @relation("PayerEscrows")
+  recipientEscrows   EscrowTransaction[] @relation("RecipientEscrows")
 
   @@map("users")
 }
@@ -132,6 +138,8 @@ model CreatorProfile {
   servicePackages ServicePackage[]
   applications    CampaignApplication[]
   invitations     CampaignInvitation[]
+  offers          Offer[]
+  contracts       Contract[]
 
   @@index([userId])
   @@map("creator_profiles")
@@ -241,6 +249,8 @@ model Campaign {
   conversations     Conversation[]
   applications      CampaignApplication[]
   invitations       CampaignInvitation[]
+  offers            Offer[]
+  contracts         Contract[]
 
   @@index([businessProfileId])
   @@index([status])
@@ -377,5 +387,150 @@ model CampaignInvitation {
   @@index([creatorProfileId])
   @@index([status])
   @@map("campaign_invitations")
+}
+
+// ============================================
+// Offers & Negotiation (Chunk 10)
+// ============================================
+
+enum OfferStatus {
+  DRAFT
+  PENDING
+  ACCEPTED
+  REJECTED
+  COUNTERED
+  WITHDRAWN
+  EXPIRED
+}
+
+model Offer {
+  id               String          @id @default(uuid())
+  senderId         String          @map("sender_id")
+  recipientId      String          @map("recipient_id")
+  creatorProfileId String          @map("creator_profile_id")
+  campaignId       String?         @map("campaign_id")
+  title            String
+  description      String?         @db.Text
+  price            Float
+  currency         String          @default("USD")
+  deliverables     Json
+  revisionLimit    Int             @default(2) @map("revision_limit")
+  deadline         DateTime
+  usageRights      String?         @map("usage_rights")
+  exclusivityDays  Int?            @map("exclusivity_days")
+  parentOfferId    String?         @map("parent_offer_id")
+  counterReason    String?         @map("counter_reason") @db.Text
+  status           OfferStatus     @default(PENDING)
+  expiresAt        DateTime?       @map("expires_at")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  sender           User            @relation("SentOffers", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient        User            @relation("ReceivedOffers", fields: [recipientId], references: [id], onDelete: Cascade)
+  creatorProfile   CreatorProfile  @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+  campaign         Campaign?       @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  parentOffer      Offer?          @relation("CounterOffers", fields: [parentOfferId], references: [id], onDelete: SetNull)
+  counterOffers    Offer[]         @relation("CounterOffers")
+  contract         Contract?
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([creatorProfileId])
+  @@index([campaignId])
+  @@index([parentOfferId])
+  @@index([status])
+  @@map("offers")
+}
+
+// ============================================
+// Contracts (Chunk 11)
+// ============================================
+
+enum ContractStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  IN_REVIEW
+  COMPLETED
+  DISPUTED
+  CANCELLED
+}
+
+model Contract {
+  id               String          @id @default(uuid())
+  contractNumber   String          @unique @map("contract_number")
+  offerId          String          @unique @map("offer_id")
+  businessId       String          @map("business_id")
+  creatorId        String          @map("creator_id")
+  creatorProfileId String          @map("creator_profile_id")
+  campaignId       String?         @map("campaign_id")
+  title            String
+  totalAmount      Float           @map("total_amount")
+  platformFee      Float           @map("platform_fee")
+  creatorEarnings  Float           @map("creator_earnings")
+  currency         String          @default("USD")
+  termsSnapshot    Json            @map("terms_snapshot")
+  status           ContractStatus  @default(PENDING_PAYMENT)
+  startDate        DateTime?       @map("start_date")
+  dueDate          DateTime        @map("due_date")
+  completedAt      DateTime?       @map("completed_at")
+  cancelledAt      DateTime?       @map("cancelled_at")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  offer            Offer           @relation(fields: [offerId], references: [id], onDelete: Restrict)
+  business         User            @relation("BusinessContracts", fields: [businessId], references: [id], onDelete: Restrict)
+  creator          User            @relation("CreatorContracts", fields: [creatorId], references: [id], onDelete: Restrict)
+  creatorProfile   CreatorProfile  @relation(fields: [creatorProfileId], references: [id], onDelete: Restrict)
+  campaign         Campaign?       @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  escrowTransactions EscrowTransaction[]
+
+  @@index([businessId])
+  @@index([creatorId])
+  @@index([creatorProfileId])
+  @@index([campaignId])
+  @@index([status])
+  @@map("contracts")
+}
+
+// ============================================
+// Payments & Escrow (Chunk 12)
+// ============================================
+
+enum EscrowStatus {
+  PENDING
+  HELD
+  RELEASED
+  REFUNDED
+  FAILED
+}
+
+model EscrowTransaction {
+  id                    String       @id @default(uuid())
+  contractId            String       @map("contract_id")
+  payerId               String       @map("payer_id")
+  recipientId           String       @map("recipient_id")
+  amount                Float
+  platformFee           Float        @map("platform_fee")
+  creatorAmount         Float        @map("creator_amount")
+  currency              String       @default("USD")
+  status                EscrowStatus @default(PENDING)
+  paymentProvider       String       @default("STRIPE_MOCK") @map("payment_provider")
+  providerTransactionId String?      @map("provider_transaction_id")
+  idempotencyKey        String       @unique @map("idempotency_key")
+  paidAt                DateTime?    @map("paid_at")
+  releasedAt            DateTime?    @map("released_at")
+  refundedAt            DateTime?    @map("refunded_at")
+  createdAt             DateTime     @default(now()) @map("created_at")
+  updatedAt             DateTime     @updatedAt @map("updated_at")
+
+  contract              Contract     @relation(fields: [contractId], references: [id], onDelete: Restrict)
+  payer                 User         @relation("PayerEscrows", fields: [payerId], references: [id], onDelete: Restrict)
+  recipient             User         @relation("RecipientEscrows", fields: [recipientId], references: [id], onDelete: Restrict)
+
+  @@index([contractId])
+  @@index([payerId])
+  @@index([recipientId])
+  @@index([status])
+  @@map("escrow_transactions")
 }
 

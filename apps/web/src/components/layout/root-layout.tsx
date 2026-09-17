@@ -16,6 +16,8 @@ import {
   Plus,
   MessageSquare,
   Package,
+  ArrowLeftRight,
+  FileText,
 } from 'lucide-react';
 import { useUnreadCount } from '@/features/messages/hooks';
 
@@ -119,6 +121,22 @@ export function RootLayout() {
                 >
                   Find Campaigns
                 </Link>
+                {isAuthenticated && (
+                  <>
+                    <Link
+                      to="/offers"
+                      className="text-gray-300 hover:text-white transition-colors"
+                    >
+                      Offers
+                    </Link>
+                    <Link
+                      to="/contracts"
+                      className="text-gray-300 hover:text-white transition-colors"
+                    >
+                      Contracts
+                    </Link>
+                  </>
+                )}
                 {isBusiness && (
                   <Link
                     to="/campaigns/manage"
@@ -282,6 +300,24 @@ export function RootLayout() {
                             </Link>
                           </>
                         )}
+
+                        <Link
+                          to="/offers"
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-gray-200 hover:text-white hover:bg-white/10 transition-colors"
+                        >
+                          <ArrowLeftRight className="w-3.5 h-3.5 text-amber-400" />
+                          Offers & Negotiation
+                        </Link>
+
+                        <Link
+                          to="/contracts"
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-gray-200 hover:text-white hover:bg-white/10 transition-colors"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                          Contracts & Escrow
+                        </Link>
 
                         {(isCreator || isBusiness) && (
                           <Link

@@ -18,6 +18,9 @@ import { CampaignManagePage } from '@/pages/campaigns/manage';
 import { CampaignCreatePage } from '@/pages/campaigns/create';
 import { CampaignDetailPage } from '@/pages/campaigns/detail';
 import { MessagesPage } from '@/pages/messages';
+import { OffersPage } from '@/pages/offers';
+import { ContractsPage } from '@/pages/contracts';
+import { ContractDetailPage } from '@/pages/contracts/detail';
 
 export function AppRouter() {
   return (
@@ -52,6 +55,13 @@ export function AppRouter() {
 
         {/* Real-Time Messaging (Chunk 7) */}
         <Route path="/messages" element={<MessagesPage />} />
+
+        {/* Offers & Negotiation (Chunk 10) */}
+        <Route path="/offers" element={<OffersPage />} />
+
+        {/* Contracts & Escrow (Chunk 11 & 12) */}
+        <Route path="/contracts" element={<ContractsPage />} />
+        <Route path="/contracts/:id" element={<ContractDetailPage />} />
 
         {/* Catch-all */}
         <Route path="*" element={<NotFoundPage />} />

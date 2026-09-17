@@ -51,3 +51,12 @@ export * from './service-package.schema';
 // Campaign Application & Invitation schemas (Chunk 9)
 export * from './application.schema';
 
+// Offers & Negotiation schemas (Chunk 10)
+export * from './offer.schema';
+
+// Contract schemas (Chunk 11)
+export * from './contract.schema';
+
+// Payment & Escrow schemas (Chunk 12)
+export * from './payment.schema';
+
