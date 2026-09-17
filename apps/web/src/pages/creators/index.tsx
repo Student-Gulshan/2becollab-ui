@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useCreatorSearch } from '@/features/creators/hooks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,12 @@ import {
   Globe,
   Loader2,
   ArrowRight,
+  MessageSquare,
+  Briefcase,
 } from 'lucide-react';
+import { useAuthStore } from '@/stores/auth-store';
+import { useStartConversation } from '@/features/messages/hooks';
+import { InviteCreatorModal } from '@/components/campaigns/invite-creator-modal';
 
 const PLATFORM_ICONS: Record<SocialPlatform, React.ReactNode> = {
   [SocialPlatform.INSTAGRAM]: <Instagram className="w-3.5 h-3.5" />,
@@ -60,11 +65,20 @@ function formatFollowers(num: number | undefined | null): string {
 
 export function CreatorDiscoveryPage() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const startConversationMutation = useStartConversation();
 
-  // Search & Filter state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedNiche, setSelectedNiche] = useState<string>('');
-  const [selectedPlatform, setSelectedPlatform] = useState<SocialPlatform | ''>('');
+  const [selectedCreatorForInvite, setSelectedCreatorForInvite] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [selectedNiche, setSelectedNiche] = useState<string>(searchParams.get('niche') || '');
+  const [selectedPlatform, setSelectedPlatform] = useState<SocialPlatform | ''>(
+    (searchParams.get('platform') as SocialPlatform) || ''
+  );
   const [selectedFollowerTier, setSelectedFollowerTier] = useState<number>(0);
   const [minRating, setMinRating] = useState<number | undefined>(undefined);
   const [locationInput, setLocationInput] = useState('');
@@ -469,22 +483,64 @@ export function CreatorDiscoveryPage() {
                   </div>
 
                   {/* Card Footer Actions */}
-                  <div className="px-6 py-4 border-t border-white/5 bg-white/[0.02] flex items-center justify-between gap-3">
+                  <div className="px-6 py-4 border-t border-white/5 bg-white/[0.02] flex items-center justify-between gap-2">
                     <Link
                       to={profileUrl}
                       className="text-xs font-semibold text-gray-300 hover:text-white transition-colors"
                     >
                       View Profile
                     </Link>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => navigate(profileUrl)}
-                      className="text-xs flex items-center gap-1 shadow-md shadow-indigo-500/20"
-                    >
-                      <span>Connect</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Button>
+
+                    <div className="flex items-center gap-1.5">
+                      {user?.role === 'BUSINESS' && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSelectedCreatorForInvite({
+                              id: creator.id,
+                              name: creator.fullName,
+                            })
+                          }
+                          className="p-2 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 transition-colors"
+                          title="Invite to Campaign"
+                        >
+                          <Briefcase className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!user) {
+                            navigate('/auth/choose-role');
+                            return;
+                          }
+                          try {
+                            const conv = await startConversationMutation.mutateAsync({
+                              recipientId: creator.userId,
+                              initialMessage: `Hi ${creator.fullName}, let's connect for collaboration opportunities!`,
+                            });
+                            navigate(`/messages?id=${conv.id}`);
+                          } catch (err) {
+                            alert('Failed to start chat');
+                          }
+                        }}
+                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors"
+                        title="Direct Message"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                      </button>
+
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => navigate(profileUrl)}
+                        className="text-xs flex items-center gap-1 shadow-md shadow-indigo-500/20"
+                      >
+                        <span>Connect</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               );
@@ -522,6 +578,16 @@ export function CreatorDiscoveryPage() {
           </div>
         )}
       </div>
+
+      {/* Invite Modal */}
+      {selectedCreatorForInvite && (
+        <InviteCreatorModal
+          isOpen={!!selectedCreatorForInvite}
+          onClose={() => setSelectedCreatorForInvite(null)}
+          creatorProfileId={selectedCreatorForInvite.id}
+          creatorName={selectedCreatorForInvite.name}
+        />
+      )}
     </div>
   );
 }

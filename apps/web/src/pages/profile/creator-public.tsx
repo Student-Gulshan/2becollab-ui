@@ -35,7 +35,14 @@ import {
   Building,
   Layers,
   Users,
+  Package,
+  RotateCcw,
+  Clock,
+  Check,
+  Briefcase,
 } from 'lucide-react';
+import { useStartConversation } from '@/features/messages/hooks';
+import { InviteCreatorModal } from '@/components/campaigns/invite-creator-modal';
 
 const PLATFORM_ICONS: Record<SocialPlatform, React.ReactNode> = {
   [SocialPlatform.INSTAGRAM]: <Instagram className="w-4 h-4" />,
@@ -72,6 +79,10 @@ export function CreatorPublicProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const startConversationMutation = useStartConversation();
+
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const isBusiness = user?.role === 'BUSINESS';
 
   const { data: profile, isLoading, isError } = usePublicCreator(id || '');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -107,8 +118,9 @@ export function CreatorPublicProfilePage() {
   const creatorName = profile.user?.fullName || 'Creator Profile';
   const avatarUrl = profile.user?.avatarUrl;
 
-  const socialAccounts = (profile as any).socialAccounts || [];
-  const portfolioItems = (profile as any).portfolioItems || [];
+  const socialAccounts = profile.socialAccounts || [];
+  const portfolioItems = profile.portfolioItems || [];
+  const servicePackages = (profile as any).servicePackages || [];
 
   // Metrics rollups
   const totalFollowers = socialAccounts.reduce(
@@ -593,6 +605,91 @@ export function CreatorPublicProfilePage() {
                 </div>
               </div>
             )}
+
+            {/* Services & Pricing Packages Section */}
+            {servicePackages.length > 0 && (
+              <Card variant="glass" padding="lg">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-bold text-white flex items-center gap-2">
+                    <Package className="w-4 h-4 text-emerald-400" />
+                    Standard Service Packages
+                  </h2>
+                  <span className="text-xs text-gray-400">
+                    {servicePackages.length} {servicePackages.length === 1 ? 'package' : 'packages'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {servicePackages.map((pkg: any) => {
+                    const sym = pkg.currency === 'INR' ? '₹' : '$';
+                    return (
+                      <div
+                        key={pkg.id}
+                        className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-500/30 transition-all flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                              {SOCIAL_PLATFORM_LABELS[pkg.platform as SocialPlatform] || pkg.platform} • {pkg.format}
+                            </span>
+                            <span className="text-sm font-black text-white">
+                              {sym}{pkg.price.toLocaleString()}
+                            </span>
+                          </div>
+
+                          <h4 className="text-sm font-bold text-white mb-1">{pkg.title}</h4>
+                          <p className="text-xs text-gray-400 line-clamp-2 mb-3">{pkg.description}</p>
+
+                          <div className="flex items-center gap-3 text-[11px] text-gray-300 mb-3">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-amber-400" /> {pkg.deliveryDays}d delivery
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <RotateCcw className="w-3 h-3 text-indigo-400" /> {pkg.revisions} rev
+                            </span>
+                          </div>
+
+                          {pkg.features && pkg.features.length > 0 && (
+                            <ul className="space-y-1 mb-4 text-[11px] text-gray-300">
+                              {pkg.features.slice(0, 3).map((f: string, i: number) => (
+                                <li key={i} className="flex items-center gap-1.5">
+                                  <Check className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                                  <span className="truncate">{f}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          className="w-full text-xs flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500"
+                          onClick={async () => {
+                            if (!user) {
+                              navigate('/auth/choose-role');
+                              return;
+                            }
+                            try {
+                              const conv = await startConversationMutation.mutateAsync({
+                                recipientId: profile.userId,
+                                initialMessage: `Hi ${creatorName}, I am interested in booking your "${pkg.title}" package (${sym}${pkg.price}).`,
+                              });
+                              navigate(`/messages?id=${conv.id}`);
+                            } catch (err) {
+                              alert('Failed to start conversation');
+                            }
+                          }}
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Inquire About Package</span>
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            )}
           </div>
 
           {/* Right Column / Sticky Collaboration Card (1 span) */}
@@ -608,36 +705,40 @@ export function CreatorPublicProfilePage() {
               </p>
 
               <div className="space-y-3">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="w-full flex items-center justify-center gap-2"
-                  onClick={() => {
-                    if (!user) {
-                      navigate('/auth/choose-role');
-                    } else {
-                      alert('Offers & Negotiation module is coming up in Chunk 10!');
-                    }
-                  }}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Send Offer
-                </Button>
+                {isBusiness && (
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20"
+                    onClick={() => setInviteModalOpen(true)}
+                  >
+                    <Briefcase className="w-4 h-4" />
+                    <span>Invite to Campaign</span>
+                  </Button>
+                )}
 
                 <Button
                   variant="secondary"
                   size="lg"
                   className="w-full flex items-center justify-center gap-2"
-                  onClick={() => {
+                  onClick={async () => {
                     if (!user) {
                       navigate('/auth/choose-role');
-                    } else {
-                      alert('Direct Messaging will be active in Chunk 7!');
+                      return;
+                    }
+                    try {
+                      const conv = await startConversationMutation.mutateAsync({
+                        recipientId: profile.userId,
+                        initialMessage: `Hi ${creatorName}, let's connect for collaboration opportunities!`,
+                      });
+                      navigate(`/messages?id=${conv.id}`);
+                    } catch (err) {
+                      alert('Failed to start chat');
                     }
                   }}
                 >
                   <MessageSquare className="w-4 h-4" />
-                  Message
+                  <span>Message</span>
                 </Button>
               </div>
 
@@ -655,6 +756,15 @@ export function CreatorPublicProfilePage() {
           </div>
         </div>
       </div>
+
+      {inviteModalOpen && profile && (
+        <InviteCreatorModal
+          isOpen={inviteModalOpen}
+          onClose={() => setInviteModalOpen(false)}
+          creatorProfileId={profile.id}
+          creatorName={creatorName}
+        />
+      )}
     </div>
   );
 }

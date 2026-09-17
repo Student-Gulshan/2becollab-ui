@@ -463,3 +463,217 @@ export interface CampaignSearchResponse {
   items: CampaignResponse[];
   pagination: PaginationMeta;
 }
+
+// ============================================
+// Messaging & Real-Time Chat (Chunk 7)
+// ============================================
+
+export interface MessageResponse {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  attachments?: any;
+  isRead: boolean;
+  readAt: string | null;
+  createdAt: string;
+  sender?: {
+    id: string;
+    fullName: string;
+    avatarUrl: string | null;
+    role: UserRole;
+  };
+}
+
+export interface ConversationParticipantSummary {
+  id: string;
+  fullName: string;
+  avatarUrl: string | null;
+  role: UserRole;
+  headline?: string | null;
+  companyName?: string | null;
+}
+
+export interface ConversationResponse {
+  id: string;
+  participant1Id: string;
+  participant2Id: string;
+  campaignId: string | null;
+  lastMessageAt: string;
+  lastMessageText: string | null;
+  createdAt: string;
+  updatedAt: string;
+  otherParticipant: ConversationParticipantSummary;
+  unreadCount: number;
+  campaign?: {
+    id: string;
+    title: string;
+    status: CampaignStatus;
+  } | null;
+}
+
+export interface SendMessagePayload {
+  content: string;
+  attachments?: any;
+}
+
+export interface StartConversationPayload {
+  recipientId: string;
+  campaignId?: string;
+  initialMessage?: string;
+}
+
+export interface UnreadCountResponse {
+  unreadCount: number;
+}
+
+// ============================================
+// Creator Services & Pricing Packages (Chunk 8)
+// ============================================
+
+export interface ServicePackageResponse {
+  id: string;
+  creatorProfileId: string;
+  title: string;
+  description: string;
+  platform: SocialPlatform;
+  format: string;
+  price: number;
+  currency: string;
+  deliveryDays: number;
+  revisions: number;
+  features: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateServicePackagePayload {
+  title: string;
+  description: string;
+  platform: SocialPlatform;
+  format: string;
+  price: number;
+  currency?: string;
+  deliveryDays?: number;
+  revisions?: number;
+  features?: string[];
+  isActive?: boolean;
+}
+
+export interface UpdateServicePackagePayload {
+  title?: string;
+  description?: string;
+  platform?: SocialPlatform;
+  format?: string;
+  price?: number;
+  currency?: string;
+  deliveryDays?: number;
+  revisions?: number;
+  features?: string[];
+  isActive?: boolean;
+}
+
+// ============================================
+// Campaign Applications & Invitations (Chunk 9)
+// ============================================
+
+export enum ApplicationStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+  WITHDRAWN = 'WITHDRAWN',
+}
+
+export enum InvitationStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  DECLINED = 'DECLINED',
+  CANCELLED = 'CANCELLED',
+}
+
+export interface CampaignApplicationResponse {
+  id: string;
+  campaignId: string;
+  creatorProfileId: string;
+  pitch: string;
+  proposedRate: number | null;
+  currency: string;
+  status: ApplicationStatus;
+  reviewNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  creator?: {
+    id: string;
+    userId: string;
+    fullName: string;
+    avatarUrl: string | null;
+    headline: string | null;
+    bio: string | null;
+    location: string | null;
+    niches: string[];
+    ratingAverage: number;
+    reviewCount: number;
+    socialAccounts?: SocialAccountResponse[];
+  };
+  campaign?: {
+    id: string;
+    title: string;
+    budgetMin: number | null;
+    budgetMax: number | null;
+    currency: string;
+    deadline: string | null;
+    status: CampaignStatus;
+  };
+}
+
+export interface CampaignInvitationResponse {
+  id: string;
+  campaignId: string;
+  creatorProfileId: string;
+  message: string | null;
+  status: InvitationStatus;
+  createdAt: string;
+  updatedAt: string;
+  campaign?: {
+    id: string;
+    title: string;
+    budgetMin: number | null;
+    budgetMax: number | null;
+    currency: string;
+    deadline: string | null;
+    status: CampaignStatus;
+    business?: {
+      companyName: string | null;
+      logoUrl: string | null;
+    };
+  };
+  creator?: {
+    id: string;
+    userId: string;
+    fullName: string;
+    avatarUrl: string | null;
+  };
+}
+
+export interface ApplyCampaignPayload {
+  pitch: string;
+  proposedRate?: number;
+  currency?: string;
+}
+
+export interface InviteCreatorPayload {
+  campaignId: string;
+  creatorProfileId: string;
+  message?: string;
+}
+
+export interface UpdateApplicationStatusPayload {
+  status: ApplicationStatus.ACCEPTED | ApplicationStatus.REJECTED;
+  reviewNotes?: string;
+}
+
+export interface RespondInvitationPayload {
+  status: InvitationStatus.ACCEPTED | InvitationStatus.DECLINED;
+}
+

@@ -28,9 +28,11 @@ import {
   Languages,
   Share2,
   Layers,
+  Package,
 } from 'lucide-react';
 import { SocialAccountsSection } from '@/components/profile/social-accounts-section';
 import { PortfolioSection } from '@/components/profile/portfolio-section';
+import { ServicesSection } from '@/components/profile/services-section';
 
 const INDUSTRY_OPTIONS = [
   'E-commerce & Retail',
@@ -93,10 +95,12 @@ export function ProfileEditPage() {
   // UI state
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const activeTab: 'profile' | 'social' | 'portfolio' =
-    tabParam === 'social' || tabParam === 'portfolio' ? tabParam : 'profile';
+  const activeTab: 'profile' | 'social' | 'portfolio' | 'services' =
+    tabParam === 'social' || tabParam === 'portfolio' || tabParam === 'services'
+      ? tabParam
+      : 'profile';
 
-  const setActiveTab = (tab: 'profile' | 'social' | 'portfolio') => {
+  const setActiveTab = (tab: 'profile' | 'social' | 'portfolio' | 'services') => {
     setSearchParams(tab === 'profile' ? {} : { tab });
   };
 
@@ -315,12 +319,26 @@ export function ProfileEditPage() {
             <Layers className="w-4 h-4" />
             <span>Portfolio Work</span>
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('services')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              activeTab === 'services'
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Package className="w-4 h-4" />
+            <span>Services & Packages</span>
+          </button>
         </div>
       )}
 
       {isCreator && activeTab === 'social' && <SocialAccountsSection />}
 
       {isCreator && activeTab === 'portfolio' && <PortfolioSection />}
+
+      {isCreator && activeTab === 'services' && <ServicesSection />}
 
       {(activeTab === 'profile' || !isCreator) && (
         <>

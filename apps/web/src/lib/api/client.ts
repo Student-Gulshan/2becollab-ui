@@ -68,11 +68,18 @@ apiClient.interceptors.response.use(
           return apiClient(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError);
-          // Only redirect if user is on a protected page, NEVER if already in /auth/*
-          if (
-            typeof window !== 'undefined' &&
-            !window.location.pathname.startsWith('/auth')
-          ) {
+          // Only redirect if user is on a protected page, NEVER if on public browse pages or auth
+          const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+          const isPublic =
+            pathname.startsWith('/auth') ||
+            pathname === '/' ||
+            pathname === '/creators' ||
+            pathname === '/campaigns' ||
+            pathname.startsWith('/creators/') ||
+            pathname.startsWith('/campaigns/') ||
+            pathname.startsWith('/businesses/');
+
+          if (typeof window !== 'undefined' && !isPublic) {
             window.location.href = '/auth/choose-role';
           }
           return Promise.reject(refreshError);

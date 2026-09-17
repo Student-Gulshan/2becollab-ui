@@ -14,7 +14,10 @@ import {
   Layers,
   Briefcase,
   Plus,
+  MessageSquare,
+  Package,
 } from 'lucide-react';
+import { useUnreadCount } from '@/features/messages/hooks';
 
 export function RootLayout() {
   const navigate = useNavigate();
@@ -41,6 +44,9 @@ export function RootLayout() {
 
   const isCreator = user?.role === 'CREATOR';
   const isBusiness = user?.role === 'BUSINESS';
+
+  const { data: unreadData } = useUnreadCount();
+  const unreadCount = unreadData?.unreadCount ?? 0;
 
   // Check if profile is incomplete
   const isProfileIncomplete =
@@ -132,6 +138,21 @@ export function RootLayout() {
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Post Campaign</span>
+                </Link>
+              )}
+
+              {isAuthenticated && (
+                <Link
+                  to="/messages"
+                  className="relative p-2 rounded-xl glass border border-white/10 hover:border-white/20 text-gray-300 hover:text-white transition-all"
+                  title="Messages"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-indigo-500 text-white text-[10px] font-bold flex items-center justify-center animate-pulse">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
                 </Link>
               )}
 
@@ -227,6 +248,15 @@ export function RootLayout() {
                             >
                               <Layers className="w-3.5 h-3.5 text-sky-400" />
                               Portfolio Work
+                            </Link>
+
+                            <Link
+                              to="/profile/edit?tab=services"
+                              onClick={() => setDropdownOpen(false)}
+                              className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-gray-200 hover:text-white hover:bg-white/10 transition-colors"
+                            >
+                              <Package className="w-3.5 h-3.5 text-emerald-400" />
+                              Services & Packages
                             </Link>
                           </>
                         )}

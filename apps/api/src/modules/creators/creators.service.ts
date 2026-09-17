@@ -92,6 +92,10 @@ export class CreatorsService {
         portfolioItems: {
           orderBy: { sortOrder: 'asc' },
         },
+        servicePackages: {
+          where: { isActive: true },
+          orderBy: { price: 'asc' },
+        },
       },
     });
 
@@ -343,6 +347,26 @@ export class CreatorsService {
         sortOrder: i.sortOrder,
         createdAt: i.createdAt.toISOString(),
         updatedAt: i.updatedAt.toISOString(),
+      }));
+    }
+
+    // Include service packages if loaded
+    if (profile.servicePackages) {
+      result.servicePackages = profile.servicePackages.map((s: any) => ({
+        id: s.id,
+        creatorProfileId: s.creatorProfileId,
+        title: s.title,
+        description: s.description,
+        platform: s.platform,
+        format: s.format,
+        price: s.price,
+        currency: s.currency,
+        deliveryDays: s.deliveryDays,
+        revisions: s.revisions,
+        features: s.features,
+        isActive: s.isActive,
+        createdAt: s.createdAt?.toISOString?.() ?? s.createdAt,
+        updatedAt: s.updatedAt?.toISOString?.() ?? s.updatedAt,
       }));
     }
 

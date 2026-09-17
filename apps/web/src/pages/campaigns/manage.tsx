@@ -16,7 +16,9 @@ import {
   ExternalLink,
   Loader2,
   Clock,
+  Users,
 } from 'lucide-react';
+import { ApplicationsDrawer } from '@/components/campaigns/applications-drawer';
 
 const STATUS_TABS: Array<{ label: string; value: CampaignStatus | 'ALL' }> = [
   { label: 'All Campaigns', value: 'ALL' },
@@ -47,6 +49,7 @@ export function CampaignManagePage() {
 
 
   const [activeStatusTab, setActiveStatusTab] = useState<CampaignStatus | 'ALL'>('ALL');
+  const [selectedCampaignForApps, setSelectedCampaignForApps] = useState<CampaignResponse | null>(null);
 
   const { data: campaigns = [], isLoading } = useMyCampaigns(
     activeStatusTab === 'ALL' ? undefined : activeStatusTab,
@@ -223,6 +226,16 @@ export function CampaignManagePage() {
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => setSelectedCampaignForApps(campaign)}
+                    className="text-xs flex items-center gap-1 text-indigo-300 hover:text-white"
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span>Applicants</span>
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => toggleStatus(campaign)}
                     disabled={updateMutation.isPending}
                     className="text-xs flex items-center gap-1 text-gray-300 hover:text-white"
@@ -273,6 +286,16 @@ export function CampaignManagePage() {
             );
           })}
         </div>
+      )}
+
+      {/* Applications Drawer Modal */}
+      {selectedCampaignForApps && (
+        <ApplicationsDrawer
+          isOpen={!!selectedCampaignForApps}
+          onClose={() => setSelectedCampaignForApps(null)}
+          campaignId={selectedCampaignForApps.id}
+          campaignTitle={selectedCampaignForApps.title}
+        />
       )}
     </div>
   );

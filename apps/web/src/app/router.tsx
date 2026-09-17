@@ -17,6 +17,7 @@ import { CampaignDiscoveryPage } from '@/pages/campaigns';
 import { CampaignManagePage } from '@/pages/campaigns/manage';
 import { CampaignCreatePage } from '@/pages/campaigns/create';
 import { CampaignDetailPage } from '@/pages/campaigns/detail';
+import { MessagesPage } from '@/pages/messages';
 
 export function AppRouter() {
   return (
@@ -48,6 +49,9 @@ export function AppRouter() {
         <Route path="/campaigns/new" element={<CampaignCreatePage />} />
         <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
         <Route path="/campaigns/:id/edit" element={<CampaignCreatePage />} />
+
+        {/* Real-Time Messaging (Chunk 7) */}
+        <Route path="/messages" element={<MessagesPage />} />
 
         {/* Catch-all */}
         <Route path="*" element={<NotFoundPage />} />

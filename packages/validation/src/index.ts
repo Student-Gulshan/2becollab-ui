@@ -41,3 +41,13 @@ export * from './creator-search.schema';
 
 // Campaign schemas (Chunk 6)
 export * from './campaign.schema';
+
+// Messaging schemas (Chunk 7)
+export * from './message.schema';
+
+// Creator Service Package schemas (Chunk 8)
+export * from './service-package.schema';
+
+// Campaign Application & Invitation schemas (Chunk 9)
+export * from './application.schema';
+

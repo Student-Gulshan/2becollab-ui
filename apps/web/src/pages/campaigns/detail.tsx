@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCampaign } from '@/features/campaigns/hooks';
 import { useAuthStore } from '@/stores/auth-store';
@@ -26,7 +27,11 @@ import {
   Linkedin,
   Facebook,
   Twitter,
+  MessageSquare,
 } from 'lucide-react';
+import { ApplyModal } from '@/components/campaigns/apply-modal';
+import { useMyApplications } from '@/features/applications/hooks';
+import { useStartConversation } from '@/features/messages/hooks';
 
 const PLATFORM_ICONS: Record<SocialPlatform, React.ReactNode> = {
   [SocialPlatform.INSTAGRAM]: <Instagram className="w-4 h-4" />,
@@ -73,6 +78,12 @@ export function CampaignDetailPage() {
   const { user } = useAuthStore();
 
   const { data: campaign, isLoading, isError } = useCampaign(id || '');
+  const { data: myApplications = [] } = useMyApplications();
+  const startConversationMutation = useStartConversation();
+
+  const [applyModalOpen, setApplyModalOpen] = useState(false);
+
+  const existingApp = myApplications.find((a) => a.campaignId === campaign?.id);
 
   if (isLoading) {
     return (
@@ -378,22 +389,89 @@ export function CampaignDetailPage() {
                     <Edit3 className="w-4 h-4" />
                     <span>Edit Campaign</span>
                   </Button>
+                ) : existingApp ? (
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-xl text-center bg-indigo-500/15 border border-indigo-500/30">
+                      <span className="text-xs font-bold text-indigo-300 block mb-0.5">
+                        Application Status: {existingApp.status}
+                      </span>
+                      <span className="text-[11px] text-gray-400">
+                        {existingApp.status === 'PENDING'
+                          ? 'Your pitch is being reviewed by the brand.'
+                          : existingApp.status === 'ACCEPTED'
+                          ? 'Congratulations! The brand has accepted your proposal.'
+                          : 'This application was not selected.'}
+                      </span>
+                    </div>
+
+                    {brand?.userId && (
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        className="w-full flex items-center justify-center gap-2"
+                        onClick={async () => {
+                          try {
+                            const conv = await startConversationMutation.mutateAsync({
+                              recipientId: brand.userId,
+                              campaignId: campaign.id,
+                              initialMessage: `Hi ${companyName}, following up on my application for "${campaign.title}"!`,
+                            });
+                            navigate(`/messages?id=${conv.id}`);
+                          } catch (err) {
+                            alert('Failed to open chat');
+                          }
+                        }}
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        <span>Message Brand</span>
+                      </Button>
+                    )}
+                  </div>
                 ) : (
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/20"
-                    onClick={() => {
-                      if (!user) {
-                        navigate('/auth/choose-role');
-                      } else {
-                        alert('Applications & Proposals workflow is coming up in Chunk 9!');
-                      }
-                    }}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    <span>Apply to Campaign</span>
-                  </Button>
+                  <div className="space-y-2">
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/20"
+                      onClick={() => {
+                        if (!user) {
+                          navigate('/auth/choose-role');
+                        } else {
+                          setApplyModalOpen(true);
+                        }
+                      }}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span>Apply to Campaign</span>
+                    </Button>
+
+                    {brand?.userId && (
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        className="w-full flex items-center justify-center gap-2 text-xs"
+                        onClick={async () => {
+                          if (!user) {
+                            navigate('/auth/choose-role');
+                            return;
+                          }
+                          try {
+                            const conv = await startConversationMutation.mutateAsync({
+                              recipientId: brand.userId,
+                              campaignId: campaign.id,
+                              initialMessage: `Hi ${companyName}, I have a question about "${campaign.title}".`,
+                            });
+                            navigate(`/messages?id=${conv.id}`);
+                          } catch (err) {
+                            alert('Failed to open chat');
+                          }
+                        }}
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>Ask a Question</span>
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -421,6 +499,14 @@ export function CampaignDetailPage() {
           </div>
         </div>
       </div>
+
+      {applyModalOpen && campaign && (
+        <ApplyModal
+          isOpen={applyModalOpen}
+          onClose={() => setApplyModalOpen(false)}
+          campaign={campaign}
+        />
+      )}
     </div>
   );
 }

@@ -10,6 +10,9 @@ import { BusinessesModule } from './modules/businesses/businesses.module';
 import { SocialAccountsModule } from './modules/social-accounts/social-accounts.module';
 import { PortfoliosModule } from './modules/portfolios/portfolios.module';
 import { CampaignsModule } from './modules/campaigns/campaigns.module';
+import { MessagesModule } from './modules/messages/messages.module';
+import { ServicesModule } from './modules/services/services.module';
+import { ApplicationsModule } from './modules/applications/applications.module';
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { CampaignsModule } from './modules/campaigns/campaigns.module';
     SocialAccountsModule,
     PortfoliosModule,
     CampaignsModule,
+    MessagesModule,
+    ServicesModule,
+    ApplicationsModule,
   ],
 })
 export class AppModule {}
