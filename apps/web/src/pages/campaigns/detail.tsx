@@ -435,7 +435,7 @@ export function CampaignDetailPage() {
                       className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/20"
                       onClick={() => {
                         if (!user) {
-                          navigate('/auth/choose-role');
+                          navigate('/auth/signup?role=CREATOR');
                         } else {
                           setApplyModalOpen(true);
                         }
@@ -452,7 +452,7 @@ export function CampaignDetailPage() {
                         className="w-full flex items-center justify-center gap-2 text-xs"
                         onClick={async () => {
                           if (!user) {
-                            navigate('/auth/choose-role');
+                            navigate('/auth/signup?role=CREATOR');
                             return;
                           }
                           try {

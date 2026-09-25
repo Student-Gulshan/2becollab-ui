@@ -29,7 +29,7 @@ export class ServicesService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return services.map((s) => ({
+    return services.map((s: any) => ({
       id: s.id,
       creatorProfileId: s.creatorProfileId,
       title: s.title,

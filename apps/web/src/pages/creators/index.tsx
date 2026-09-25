@@ -512,7 +512,7 @@ export function CreatorDiscoveryPage() {
                         type="button"
                         onClick={async () => {
                           if (!user) {
-                            navigate('/auth/choose-role');
+                            navigate('/auth/signup');
                             return;
                           }
                           try {

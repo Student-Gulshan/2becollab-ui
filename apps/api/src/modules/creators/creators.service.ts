@@ -212,20 +212,20 @@ export class CreatorsService {
       }),
     ]);
 
-    const items = profiles.map((p) => {
+    const items = profiles.map((p: any) => {
       const socialAccounts = p.socialAccounts || [];
       const totalFollowers = socialAccounts.reduce(
-        (sum, a) => sum + (a.followerCount || 0),
+        (sum: number, a: any) => sum + (a.followerCount || 0),
         0,
       );
       const accountsWithEr = socialAccounts.filter(
-        (a) => a.engagementRate !== null && a.engagementRate !== undefined,
+        (a: any) => a.engagementRate !== null && a.engagementRate !== undefined,
       );
       const avgEngagementRate =
         accountsWithEr.length > 0
           ? Number(
               (
-                accountsWithEr.reduce((sum, a) => sum + (a.engagementRate || 0), 0) /
+                accountsWithEr.reduce((sum: number, a: any) => sum + (a.engagementRate || 0), 0) /
                 accountsWithEr.length
               ).toFixed(1),
             )
@@ -246,7 +246,7 @@ export class CreatorsService {
         isVerified: p.isVerified,
         totalFollowers,
         avgEngagementRate,
-        socialAccounts: socialAccounts.map((a) => ({
+        socialAccounts: socialAccounts.map((a: any) => ({
           id: a.id,
           creatorProfileId: a.creatorProfileId,
           platform: a.platform,
@@ -259,7 +259,7 @@ export class CreatorsService {
           createdAt: a.createdAt.toISOString(),
           updatedAt: a.updatedAt.toISOString(),
         })),
-        portfolioPreview: p.portfolioItems.map((item) => ({
+        portfolioPreview: p.portfolioItems.map((item: any) => ({
           id: item.id,
           title: item.title,
           mediaUrl: item.mediaUrl,
@@ -272,7 +272,7 @@ export class CreatorsService {
     });
 
     if (dto.sortBy === 'followers' || !dto.sortBy) {
-      items.sort((a, b) =>
+      items.sort((a: any, b: any) =>
         dto.sortOrder === 'asc'
           ? a.totalFollowers - b.totalFollowers
           : b.totalFollowers - a.totalFollowers,

@@ -142,7 +142,7 @@ export class ApplicationsService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return apps.map((a) => this.serializeApplication(a));
+    return apps.map((a: any) => this.serializeApplication(a));
   }
 
   async getCreatorApplications(userId: string): Promise<CampaignApplicationResponse[]> {
@@ -156,7 +156,7 @@ export class ApplicationsService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return apps.map((a) => this.serializeApplication(a));
+    return apps.map((a: any) => this.serializeApplication(a));
   }
 
   async updateApplicationStatus(
@@ -321,7 +321,7 @@ export class ApplicationsService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return invitations.map((inv) => ({
+    return invitations.map((inv: any) => ({
       id: inv.id,
       campaignId: inv.campaignId,
       creatorProfileId: inv.creatorProfileId,

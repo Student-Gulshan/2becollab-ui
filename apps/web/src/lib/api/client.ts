@@ -80,7 +80,7 @@ apiClient.interceptors.response.use(
             pathname.startsWith('/businesses/');
 
           if (typeof window !== 'undefined' && !isPublic) {
-            window.location.href = '/auth/choose-role';
+            window.location.href = '/auth/login';
           }
           return Promise.reject(refreshError);
         } finally {

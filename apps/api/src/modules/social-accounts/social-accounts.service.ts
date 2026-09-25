@@ -39,7 +39,7 @@ export class SocialAccountsService {
       orderBy: { createdAt: 'asc' },
     });
 
-    return accounts.map((a) => this.serialize(a));
+    return accounts.map((a: any) => this.serialize(a));
   }
 
   /**

@@ -96,7 +96,7 @@ export class CampaignsService {
       },
     });
 
-    return campaigns.map((c) => this.serializeCampaign(c));
+    return campaigns.map((c: any) => this.serializeCampaign(c));
   }
 
   async findPublicCampaigns(dto: FilterCampaignDto) {
@@ -177,7 +177,7 @@ export class CampaignsService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      items: campaigns.map((c) => this.serializeCampaign(c)),
+      items: campaigns.map((c: any) => this.serializeCampaign(c)),
       pagination: {
         total,
         page,

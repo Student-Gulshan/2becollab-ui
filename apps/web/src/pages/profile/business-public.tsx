@@ -194,7 +194,7 @@ export function BusinessPublicProfilePage() {
                 className="w-full"
                 onClick={() => {
                   if (!user) {
-                    navigate('/auth/choose-role');
+                    navigate('/auth/signup');
                   } else {
                     alert('Direct Messaging will be active in Chunk 7!');
                   }

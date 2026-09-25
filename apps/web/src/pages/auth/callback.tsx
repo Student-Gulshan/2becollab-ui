@@ -141,7 +141,7 @@ export function AuthCallbackPage() {
               <div className="flex flex-col gap-3">
                 <Button
                   variant="primary"
-                  onClick={() => navigate('/auth/choose-role')}
+                  onClick={() => navigate('/auth/signup')}
                   className="w-full flex items-center justify-center gap-2"
                 >
                   Try Again

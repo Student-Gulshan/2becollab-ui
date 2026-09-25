@@ -667,7 +667,7 @@ export function CreatorPublicProfilePage() {
                           className="w-full text-xs flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500"
                           onClick={async () => {
                             if (!user) {
-                              navigate('/auth/choose-role');
+                              navigate('/auth/signup');
                               return;
                             }
                             try {
@@ -723,7 +723,7 @@ export function CreatorPublicProfilePage() {
                   className="w-full flex items-center justify-center gap-2"
                   onClick={async () => {
                     if (!user) {
-                      navigate('/auth/choose-role');
+                      navigate('/auth/signup');
                       return;
                     }
                     try {

@@ -19,7 +19,11 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@2becollab/types": ["../../packages/types/src/index.ts"],
+      "@2becollab/types/*": ["../../packages/types/src/*"],
+      "@2becollab/validation": ["../../packages/validation/src/index.ts"],
+      "@2becollab/validation/*": ["../../packages/validation/src/*"]
     }
   },
   "include": ["src", "vite-env.d.ts"]

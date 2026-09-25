@@ -1,3 +1,10 @@
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Load .env before anything else — Prisma reads DATABASE_URL from process.env
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });        // apps/api/.env
+dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '.env') }); // workspace root .env
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

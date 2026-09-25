@@ -42,7 +42,7 @@ export class PortfoliosService {
       orderBy: { sortOrder: 'asc' },
     });
 
-    return items.map((item) => this.serialize(item));
+    return items.map((item: any) => this.serialize(item));
   }
 
   /**
@@ -82,7 +82,7 @@ export class PortfoliosService {
         category: dto.category || null,
         platform: dto.platform || null,
         brandName: dto.brandName || null,
-        metrics: dto.metrics ?? Prisma.JsonNull,
+        metrics: dto.metrics ?? Prisma.DbNull,
         sortOrder: nextSortOrder,
       },
     });
@@ -119,7 +119,7 @@ export class PortfoliosService {
         ...(dto.category !== undefined ? { category: dto.category || null } : {}),
         ...(dto.platform !== undefined ? { platform: dto.platform || null } : {}),
         ...(dto.brandName !== undefined ? { brandName: dto.brandName || null } : {}),
-        ...(dto.metrics !== undefined ? { metrics: dto.metrics ?? Prisma.JsonNull } : {}),
+        ...(dto.metrics !== undefined ? { metrics: dto.metrics ?? Prisma.DbNull } : {}),
         ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
       },
     });
@@ -162,7 +162,7 @@ export class PortfoliosService {
       select: { id: true },
     });
 
-    const ownedIds = new Set(items.map((i) => i.id));
+    const ownedIds = new Set(items.map((i: any) => i.id));
 
     for (const id of itemIds) {
       if (!ownedIds.has(id)) {

@@ -110,7 +110,7 @@ export function ProfileEditPage() {
   // Redirect if not logged in
   useEffect(() => {
     if (!isAuthenticated && !user) {
-      navigate('/auth/choose-role');
+      navigate('/auth/login');
     }
   }, [isAuthenticated, user, navigate]);
 

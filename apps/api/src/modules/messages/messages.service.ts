@@ -238,7 +238,7 @@ export class MessagesService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      items: messages.map((m) => ({
+      items: messages.map((m: any) => ({
         id: m.id,
         conversationId: m.conversationId,
         senderId: m.senderId,
@@ -355,7 +355,7 @@ export class MessagesService {
       select: { id: true },
     });
 
-    const convIds = userConversations.map((c) => c.id);
+    const convIds = userConversations.map((c: any) => c.id);
 
     if (convIds.length === 0) {
       return { unreadCount: 0 };
